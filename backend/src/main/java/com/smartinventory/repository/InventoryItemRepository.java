@@ -1,0 +1,3 @@
+package com.smartinventory.repository;
+import com.smartinventory.model.*; import org.springframework.data.jpa.repository.JpaRepository; import java.util.*;
+public interface InventoryItemRepository extends JpaRepository<InventoryItem,Long>{ Optional<InventoryItem> findByProductIdAndWarehouseId(Long productId,Long warehouseId); List<InventoryItem> findByWarehouseId(Long warehouseId); List<InventoryItem> findByProductId(Long productId); long countByQuantity(int quantity); List<InventoryItem> findByQuantityLessThanEqual(int quantity); }

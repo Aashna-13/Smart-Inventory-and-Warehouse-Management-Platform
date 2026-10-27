@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels: {app: {{ .Release.Name }}}
+  template:
+    metadata:
+      labels: {app: {{ .Release.Name }}}
+    spec:
+      containers:
+        - name: app
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.containerPort }}
+          env:
+            - name: DB_HOST
+              value: {{ .Values.config.dbHost | quote }}
+            - name: DB_PORT
+              value: {{ .Values.config.dbPort | quote }}
+            - name: DB_NAME
+              value: {{ .Values.config.dbName | quote }}
+          envFrom:
+            - secretRef: {name: {{ .Values.secretName }}}
+          readinessProbe:
+            httpGet: {path: /actuator/health, port: {{ .Values.containerPort }}}
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: {path: /actuator/health, port: {{ .Values.containerPort }}}
+            initialDelaySeconds: 60
+            periodSeconds: 20
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}

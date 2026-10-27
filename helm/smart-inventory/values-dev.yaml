@@ -1,0 +1,8 @@
+replicaCount: 1
+image:
+  repository: smart-inventory
+  tag: "dev"
+  pullPolicy: IfNotPresent
+resources:
+  requests: {cpu: 200m, memory: 384Mi}
+  limits: {cpu: "1", memory: 768Mi}

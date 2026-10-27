@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: smart-inventory
+  namespace: smart-inventory
+  labels:
+    app: smart-inventory
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: smart-inventory
+  template:
+    metadata:
+      labels:
+        app: smart-inventory
+    spec:
+      initContainers:
+        - name: wait-for-mysql
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+            - until nc -z -v -w3 mysql 3306; do echo "Waiting for MySQL at mysql:3306..."; sleep 2; done; echo "MySQL is reachable!"
+      containers:
+        - name: app
+          image: smart-inventory:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: smart-inventory-config
+            - secretRef:
+                name: smart-inventory-secret
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 45
+            periodSeconds: 15
+            timeoutSeconds: 3
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 200m
+              memory: 384Mi
+            limits:
+              cpu: "1"
+              memory: 768Mi

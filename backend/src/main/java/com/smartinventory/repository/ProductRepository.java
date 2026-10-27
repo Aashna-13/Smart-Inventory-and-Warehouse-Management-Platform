@@ -1,0 +1,3 @@
+package com.smartinventory.repository;
+import com.smartinventory.model.Product; import org.springframework.data.jpa.repository.JpaRepository; import java.util.*;
+public interface ProductRepository extends JpaRepository<Product,Long>{ Optional<Product> findBySkuIgnoreCase(String sku); boolean existsBySkuIgnoreCase(String sku); List<Product> findByNameContainingIgnoreCaseOrSkuContainingIgnoreCase(String name,String sku); }

@@ -1,0 +1,27 @@
+name: Java CI and Security Scan
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+      - name: Test and package
+        working-directory: backend
+        run: mvn -B clean verify
+      - name: Build Docker image
+        run: docker build -t smart-inventory:${{ github.sha }} ./backend
+      - name: Trivy vulnerability scan
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: smart-inventory:${{ github.sha }}
+          format: table
+          exit-code: '0'
+          severity: CRITICAL,HIGH

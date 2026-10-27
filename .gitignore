@@ -1,0 +1,57 @@
+# =============================================================================
+# Smart Inventory and Warehouse Management Platform - .gitignore
+# =============================================================================
+
+# Build outputs & dependencies
+target/
+**/target/
+node_modules/
+coverage/
+.nyc_output/
+
+# Environment files & secrets (DO NOT COMMIT REAL CREDENTIALS)
+.env
+.env.local
+.env.*
+!.env.example
+**/.env
+**/.env.local
+**/.env.*
+!**/.env.example
+
+# Kubernetes secrets
+k8s/secret.yaml
+**/secret.yaml
+!k8s/secret.example.yaml
+!**/secret.example.yaml
+
+# Local data volumes & runtime storage
+mysql_data/
+**/mysql_data/
+
+# Log files
+*.log
+**/*.log
+logs/
+
+# IDE & Editor files
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+.settings/
+.project
+.classpath
+.history/
+
+# Operating System files
+.DS_Store
+Thumbs.db
+desktop.ini
+ehthumbs.db
+
+# Temporary & backup files
+*.tmp
+*.temp
+*~

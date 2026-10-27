@@ -1,0 +1,11 @@
+backend/target/
+.git/
+.gitignore
+.env
+.env.*
+*.log
+.idea/
+.vscode/
+k8s/
+helm/
+docs/

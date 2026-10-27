@@ -1,0 +1,46 @@
+services:
+  mysql:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_NAME:-smart_inventory}
+      MYSQL_USER: ${DB_USERNAME:-smartinv_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-change-me-local-only}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root-change-me}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$${MYSQL_ROOT_PASSWORD} || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  app:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: ${DB_NAME:-smart_inventory}
+      DB_USERNAME: ${DB_USERNAME:-smartinv_user}
+      DB_PASSWORD: ${DB_PASSWORD:-change-me-local-only}
+      DB_URL: jdbc:mysql://mysql:3306/${DB_NAME:-smart_inventory}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/${DB_NAME:-smart_inventory}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME:-smartinv_user}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-change-me-local-only}
+      JWT_SECRET: ${JWT_SECRET:-local-compose-secret-change-this-32-bytes-minimum}
+      JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS:-3600000}
+      BOOTSTRAP_ADMIN_USERNAME: ${BOOTSTRAP_ADMIN_USERNAME:-admin}
+      BOOTSTRAP_ADMIN_EMAIL: ${BOOTSTRAP_ADMIN_EMAIL:-admin@example.local}
+      BOOTSTRAP_ADMIN_PASSWORD: ${BOOTSTRAP_ADMIN_PASSWORD:-ChangeThisLocalPassword123!}
+    ports:
+      - "8080:8080"
+
+volumes:
+  mysql_data:
